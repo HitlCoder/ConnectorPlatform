@@ -1,0 +1,112 @@
+name: gmail
+display_name: Gmail
+description: Connect to Gmail to send, read, and manage emails
+version: 1.0.0
+base_url: https://gmail.googleapis.com
+
+auth:
+  type: oauth2
+  auth_url: https://accounts.google.com/o/oauth2/v2/auth
+  token_url: https://oauth2.googleapis.com/token
+  scope:
+    - https://www.googleapis.com/auth/gmail.readonly
+    - https://www.googleapis.com/auth/gmail.send
+    - https://www.googleapis.com/auth/gmail.modify
+  client_id_env: GMAIL_CLIENT_ID
+  client_secret_env: GMAIL_CLIENT_SECRET
+
+endpoints:
+  - name: list_messages
+    display_name: List Messages
+    description: List messages in the user's mailbox
+    method: GET
+    path: /gmail/v1/users/me/messages
+    parameters:
+      - name: maxResults
+        type: int
+        required: false
+        description: Maximum number of messages to return
+        location: query
+        default: 10
+      - name: q
+        type: str
+        required: false
+        description: Query string to filter messages
+        location: query
+    response_type: json
+
+  - name: get_message
+    display_name: Get Message
+    description: Get a specific message by ID
+    method: GET
+    path: /gmail/v1/users/me/messages/{messageId}
+    parameters:
+      - name: messageId
+        type: str
+        required: true
+        description: The ID of the message to retrieve
+        location: path
+      - name: format
+        type: str
+        required: false
+        description: Format of the message (full, metadata, minimal, raw)
+        location: query
+        default: full
+    response_type: json
+
+  - name: send_message
+    display_name: Send Message
+    description: Send an email message
+    method: POST
+    path: /gmail/v1/users/me/messages/send
+    parameters:
+      - name: raw
+        type: str
+        required: true
+        description: Base64-encoded email message in RFC 2822 format
+        location: body
+    response_type: json
+
+  - name: delete_message
+    display_name: Delete Message
+    description: Delete a message
+    method: DELETE
+    path: /gmail/v1/users/me/messages/{messageId}
+    parameters:
+      - name: messageId
+        type: str
+        required: true
+        description: The ID of the message to delete
+        location: path
+    response_type: json
+
+  - name: list_labels
+    display_name: List Labels
+    description: List all labels in the user's mailbox
+    method: GET
+    path: /gmail/v1/users/me/labels
+    parameters: []
+    response_type: json
+
+  - name: modify_message
+    display_name: Modify Message
+    description: Modify the labels on a message
+    method: POST
+    path: /gmail/v1/users/me/messages/{messageId}/modify
+    parameters:
+      - name: messageId
+        type: str
+        required: true
+        description: The ID of the message to modify
+        location: path
+      - name: addLabelIds
+        type: list
+        required: false
+        description: List of label IDs to add
+        location: body
+      - name: removeLabelIds
+        type: list
+        required: false
+        description: List of label IDs to remove
+        location: body
+    response_type: json

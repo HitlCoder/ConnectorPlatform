@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from datetime import datetime
 import uuid
-from platform.database import Connection, OAuthToken
+from connector_platform.database import Connection, OAuthToken
 
 
 class ConnectionManager:
@@ -98,7 +98,7 @@ class ConnectionManager:
         if existing_token:
             self.db.delete(existing_token)
         
-        from platform.core.oauth_manager import OAuthManager
+        from connector_platform.core.oauth_manager import OAuthManager
         oauth_manager = OAuthManager(self.db)
         
         expires_at = None

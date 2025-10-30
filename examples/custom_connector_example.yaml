@@ -1,0 +1,233 @@
+# Example: Custom Connector Configuration
+# This shows how to create a connector for a fictional API service
+
+name: acme_crm
+display_name: Acme CRM
+description: Connect to Acme CRM to manage contacts and deals
+version: 1.0.0
+base_url: https://api.acme-crm.com/v2
+
+auth:
+  type: oauth2
+  auth_url: https://acme-crm.com/oauth/authorize
+  token_url: https://acme-crm.com/oauth/token
+  scope:
+    - contacts.read
+    - contacts.write
+    - deals.read
+    - deals.write
+  client_id_env: ACME_CRM_CLIENT_ID
+  client_secret_env: ACME_CRM_CLIENT_SECRET
+
+endpoints:
+  # Contact Management
+  - name: list_contacts
+    display_name: List Contacts
+    description: Retrieve a list of contacts
+    method: GET
+    path: /contacts
+    parameters:
+      - name: page
+        type: int
+        required: false
+        description: Page number for pagination
+        location: query
+        default: 1
+      - name: per_page
+        type: int
+        required: false
+        description: Number of contacts per page
+        location: query
+        default: 20
+      - name: sort_by
+        type: str
+        required: false
+        description: Field to sort by (name, created_at, updated_at)
+        location: query
+        default: name
+    response_type: json
+
+  - name: get_contact
+    display_name: Get Contact
+    description: Retrieve a specific contact by ID
+    method: GET
+    path: /contacts/{contactId}
+    parameters:
+      - name: contactId
+        type: str
+        required: true
+        description: The ID of the contact
+        location: path
+    response_type: json
+
+  - name: create_contact
+    display_name: Create Contact
+    description: Create a new contact
+    method: POST
+    path: /contacts
+    parameters:
+      - name: first_name
+        type: str
+        required: true
+        description: Contact's first name
+        location: body
+      - name: last_name
+        type: str
+        required: true
+        description: Contact's last name
+        location: body
+      - name: email
+        type: str
+        required: true
+        description: Contact's email address
+        location: body
+      - name: phone
+        type: str
+        required: false
+        description: Contact's phone number
+        location: body
+      - name: company
+        type: str
+        required: false
+        description: Contact's company name
+        location: body
+      - name: tags
+        type: list
+        required: false
+        description: List of tags for the contact
+        location: body
+    response_type: json
+
+  - name: update_contact
+    display_name: Update Contact
+    description: Update an existing contact
+    method: PATCH
+    path: /contacts/{contactId}
+    parameters:
+      - name: contactId
+        type: str
+        required: true
+        description: The ID of the contact to update
+        location: path
+      - name: first_name
+        type: str
+        required: false
+        description: Contact's first name
+        location: body
+      - name: last_name
+        type: str
+        required: false
+        description: Contact's last name
+        location: body
+      - name: email
+        type: str
+        required: false
+        description: Contact's email address
+        location: body
+      - name: phone
+        type: str
+        required: false
+        description: Contact's phone number
+        location: body
+    response_type: json
+
+  - name: delete_contact
+    display_name: Delete Contact
+    description: Delete a contact
+    method: DELETE
+    path: /contacts/{contactId}
+    parameters:
+      - name: contactId
+        type: str
+        required: true
+        description: The ID of the contact to delete
+        location: path
+    response_type: json
+
+  # Deal Management
+  - name: list_deals
+    display_name: List Deals
+    description: Retrieve a list of deals
+    method: GET
+    path: /deals
+    parameters:
+      - name: status
+        type: str
+        required: false
+        description: Filter by deal status (open, won, lost)
+        location: query
+      - name: page
+        type: int
+        required: false
+        description: Page number for pagination
+        location: query
+        default: 1
+    response_type: json
+
+  - name: create_deal
+    display_name: Create Deal
+    description: Create a new deal
+    method: POST
+    path: /deals
+    parameters:
+      - name: title
+        type: str
+        required: true
+        description: Deal title
+        location: body
+      - name: value
+        type: int
+        required: true
+        description: Deal value in cents
+        location: body
+      - name: contact_id
+        type: str
+        required: true
+        description: Associated contact ID
+        location: body
+      - name: stage
+        type: str
+        required: false
+        description: Deal stage
+        location: body
+        default: qualification
+    response_type: json
+
+  - name: get_deal
+    display_name: Get Deal
+    description: Retrieve a specific deal by ID
+    method: GET
+    path: /deals/{dealId}
+    parameters:
+      - name: dealId
+        type: str
+        required: true
+        description: The ID of the deal
+        location: path
+    response_type: json
+
+  # Search
+  - name: search
+    display_name: Search
+    description: Search across contacts and deals
+    method: GET
+    path: /search
+    parameters:
+      - name: q
+        type: str
+        required: true
+        description: Search query
+        location: query
+      - name: type
+        type: str
+        required: false
+        description: Type to search (contacts, deals, or all)
+        location: query
+        default: all
+      - name: limit
+        type: int
+        required: false
+        description: Maximum number of results
+        location: query
+        default: 25
+    response_type: json

@@ -1,0 +1,153 @@
+name: onedrive
+display_name: OneDrive
+description: Connect to Microsoft OneDrive to manage files and folders
+version: 1.0.0
+base_url: https://graph.microsoft.com/v1.0
+
+auth:
+  type: oauth2
+  auth_url: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+  token_url: https://login.microsoftonline.com/common/oauth2/v2.0/token
+  scope:
+    - Files.ReadWrite
+    - Files.ReadWrite.All
+    - offline_access
+  client_id_env: ONEDRIVE_CLIENT_ID
+  client_secret_env: ONEDRIVE_CLIENT_SECRET
+
+endpoints:
+  - name: list_files
+    display_name: List Files
+    description: List files and folders in the root directory
+    method: GET
+    path: /me/drive/root/children
+    parameters:
+      - name: top
+        type: int
+        required: false
+        description: Number of items to return
+        location: query
+        default: 20
+      - name: orderby
+        type: str
+        required: false
+        description: Sort order (name, lastModifiedDateTime, size)
+        location: query
+    response_type: json
+
+  - name: get_file
+    display_name: Get File
+    description: Get metadata for a specific file or folder
+    method: GET
+    path: /me/drive/items/{itemId}
+    parameters:
+      - name: itemId
+        type: str
+        required: true
+        description: The ID of the file or folder
+        location: path
+    response_type: json
+
+  - name: download_file
+    display_name: Download File
+    description: Download the content of a file
+    method: GET
+    path: /me/drive/items/{itemId}/content
+    parameters:
+      - name: itemId
+        type: str
+        required: true
+        description: The ID of the file to download
+        location: path
+    response_type: binary
+
+  - name: upload_file
+    display_name: Upload File
+    description: Upload a new file or replace existing file
+    method: PUT
+    path: /me/drive/root:/{filename}:/content
+    parameters:
+      - name: filename
+        type: str
+        required: true
+        description: Name of the file to upload
+        location: path
+      - name: content
+        type: str
+        required: true
+        description: File content (base64 encoded for binary files)
+        location: body
+    response_type: json
+
+  - name: create_folder
+    display_name: Create Folder
+    description: Create a new folder
+    method: POST
+    path: /me/drive/root/children
+    parameters:
+      - name: name
+        type: str
+        required: true
+        description: Name of the folder
+        location: body
+      - name: folder
+        type: dict
+        required: true
+        description: Folder object (empty dict)
+        location: body
+    response_type: json
+
+  - name: delete_item
+    display_name: Delete Item
+    description: Delete a file or folder
+    method: DELETE
+    path: /me/drive/items/{itemId}
+    parameters:
+      - name: itemId
+        type: str
+        required: true
+        description: The ID of the file or folder to delete
+        location: path
+    response_type: json
+
+  - name: search_files
+    display_name: Search Files
+    description: Search for files and folders
+    method: GET
+    path: /me/drive/root/search(q='{query}')
+    parameters:
+      - name: query
+        type: str
+        required: true
+        description: Search query
+        location: path
+      - name: top
+        type: int
+        required: false
+        description: Number of results to return
+        location: query
+        default: 20
+    response_type: json
+
+  - name: copy_item
+    display_name: Copy Item
+    description: Copy a file or folder to a new location
+    method: POST
+    path: /me/drive/items/{itemId}/copy
+    parameters:
+      - name: itemId
+        type: str
+        required: true
+        description: The ID of the item to copy
+        location: path
+      - name: parentReference
+        type: dict
+        required: true
+        description: Reference to the parent folder
+        location: body
+      - name: name
+        type: str
+        required: false
+        description: New name for the copied item
+        location: body
+    response_type: json

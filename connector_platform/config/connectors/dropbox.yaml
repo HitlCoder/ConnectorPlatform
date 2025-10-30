@@ -1,0 +1,186 @@
+name: dropbox
+display_name: Dropbox
+description: Connect to Dropbox to manage files and folders
+version: 1.0.0
+base_url: https://api.dropboxapi.com/2
+
+auth:
+  type: oauth2
+  auth_url: https://www.dropbox.com/oauth2/authorize
+  token_url: https://api.dropboxapi.com/oauth2/token
+  scope:
+    - files.metadata.write
+    - files.metadata.read
+    - files.content.write
+    - files.content.read
+    - sharing.write
+    - sharing.read
+  client_id_env: DROPBOX_CLIENT_ID
+  client_secret_env: DROPBOX_CLIENT_SECRET
+
+endpoints:
+  - name: list_folder
+    display_name: List Folder
+    description: List contents of a folder
+    method: POST
+    path: /files/list_folder
+    parameters:
+      - name: path
+        type: str
+        required: true
+        description: Path to the folder (empty string for root)
+        location: body
+      - name: recursive
+        type: bool
+        required: false
+        description: Whether to list all subfolders recursively
+        location: body
+        default: false
+      - name: limit
+        type: int
+        required: false
+        description: Maximum number of results
+        location: body
+        default: 100
+    response_type: json
+
+  - name: get_metadata
+    display_name: Get Metadata
+    description: Get metadata for a file or folder
+    method: POST
+    path: /files/get_metadata
+    parameters:
+      - name: path
+        type: str
+        required: true
+        description: Path to the file or folder
+        location: body
+    response_type: json
+
+  - name: download_file
+    display_name: Download File
+    description: Download a file
+    method: POST
+    path: /files/download
+    headers:
+      Dropbox-API-Arg: '{"path": "{path}"}'
+    parameters:
+      - name: path
+        type: str
+        required: true
+        description: Path to the file to download
+        location: body
+    response_type: binary
+
+  - name: upload_file
+    display_name: Upload File
+    description: Upload a file
+    method: POST
+    path: /files/upload
+    headers:
+      Content-Type: application/octet-stream
+      Dropbox-API-Arg: '{"path": "{path}", "mode": "add", "autorename": true}'
+    parameters:
+      - name: path
+        type: str
+        required: true
+        description: Path where the file should be saved
+        location: body
+      - name: content
+        type: str
+        required: true
+        description: File content
+        location: body
+    response_type: json
+
+  - name: create_folder
+    display_name: Create Folder
+    description: Create a new folder
+    method: POST
+    path: /files/create_folder_v2
+    parameters:
+      - name: path
+        type: str
+        required: true
+        description: Path for the new folder
+        location: body
+      - name: autorename
+        type: bool
+        required: false
+        description: Auto-rename if folder exists
+        location: body
+        default: false
+    response_type: json
+
+  - name: delete_item
+    display_name: Delete Item
+    description: Delete a file or folder
+    method: POST
+    path: /files/delete_v2
+    parameters:
+      - name: path
+        type: str
+        required: true
+        description: Path to the file or folder to delete
+        location: body
+    response_type: json
+
+  - name: move_item
+    display_name: Move Item
+    description: Move a file or folder
+    method: POST
+    path: /files/move_v2
+    parameters:
+      - name: from_path
+        type: str
+        required: true
+        description: Source path
+        location: body
+      - name: to_path
+        type: str
+        required: true
+        description: Destination path
+        location: body
+      - name: autorename
+        type: bool
+        required: false
+        description: Auto-rename if item exists at destination
+        location: body
+        default: false
+    response_type: json
+
+  - name: search_files
+    display_name: Search Files
+    description: Search for files and folders
+    method: POST
+    path: /files/search_v2
+    parameters:
+      - name: query
+        type: str
+        required: true
+        description: Search query
+        location: body
+      - name: options
+        type: dict
+        required: false
+        description: Search options
+        location: body
+    response_type: json
+
+  - name: create_shared_link
+    display_name: Create Shared Link
+    description: Create a shared link for a file or folder
+    method: POST
+    path: /sharing/create_shared_link_with_settings
+    parameters:
+      - name: path
+        type: str
+        required: true
+        description: Path to the file or folder
+        location: body
+      - name: settings
+        type: dict
+        required: false
+        description: Sharing settings
+        location: body
+    response_type: json

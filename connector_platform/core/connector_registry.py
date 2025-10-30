@@ -7,7 +7,7 @@ from pathlib import Path
 class ConnectorRegistry:
     def __init__(self):
         self.connectors: Dict[str, Dict] = {}
-        self.config_dir = Path("platform/config/connectors")
+        self.config_dir = Path("connector_platform/config/connectors")
     
     def load_connector_configs(self):
         if not self.config_dir.exists():

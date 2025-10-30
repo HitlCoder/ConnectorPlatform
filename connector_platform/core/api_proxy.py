@@ -63,10 +63,28 @@ class APIProxy:
                 timeout=30
             )
             
+            response_type = endpoint_config.get("response_type", "json")
+            data = None
+            
+            if response.content:
+                if response_type == "json":
+                    try:
+                        data = response.json()
+                    except ValueError:
+                        data = response.text
+                elif response_type == "binary":
+                    import base64
+                    data = {
+                        "content": base64.b64encode(response.content).decode('utf-8'),
+                        "content_type": response.headers.get("Content-Type", "application/octet-stream")
+                    }
+                else:
+                    data = response.text
+            
             return {
                 "success": response.status_code < 400,
                 "status_code": response.status_code,
-                "data": response.json() if response.content else None,
+                "data": data,
                 "headers": dict(response.headers)
             }
         
