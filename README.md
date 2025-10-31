@@ -9,6 +9,8 @@ A modular, configuration-driven platform for building and managing API connector
 - **OAuth 2.0 Management**: Built-in OAuth flow handling with token storage and automatic refresh
 - **Connection Management**: Create, manage, and monitor multiple connector instances
 - **API Proxy Layer**: Transparent request/response handling with authentication
+- **Data Transformation**: Automatic transformation of API responses to common data models
+- **Kafka Integration**: Publish transformed data to Kafka topics organized by connector type
 - **Multi-Language SDKs**: Python and Go SDKs for building custom connectors
 - **RESTful API**: Complete REST API for all platform operations
 - **Developer Dashboard**: Modern web UI for managing connectors, connections, and testing APIs
@@ -328,6 +330,82 @@ npm run dev
 Dashboard available at: `http://localhost:5000`
 
 For complete dashboard documentation, see [DASHBOARD_GUIDE.md](docs/DASHBOARD_GUIDE.md)
+
+## Data Transformation and Kafka Publishing
+
+The platform automatically transforms API responses from different connectors into common data models and publishes them to Kafka topics.
+
+### Connector Types
+
+Connectors are classified by type:
+- **`cloud_storage`**: OneDrive, Dropbox, Google Drive
+- **`email`**: Gmail, Outlook
+- **`marketing`**: Marketo, Klaviyo, Mailchimp
+
+### Common Data Models
+
+Each type has standardized models:
+
+**Cloud Storage**:
+```json
+{
+  "files": [
+    {
+      "id": "file-id",
+      "name": "document.pdf",
+      "path": "/folder/document.pdf",
+      "size": 1024000,
+      "modified_at": "2025-01-15T14:30:00Z",
+      "is_folder": false
+    }
+  ],
+  "total_count": 42
+}
+```
+
+**Email**:
+```json
+{
+  "messages": [
+    {
+      "id": "msg-id",
+      "subject": "Meeting Tomorrow",
+      "from_address": "sender@example.com",
+      "received_at": "2025-01-15T10:00:00Z",
+      "is_read": false
+    }
+  ]
+}
+```
+
+### Kafka Topics
+
+Transformed data is published to topics by type:
+- `connector-platform.cloud_storage`
+- `connector-platform.email`
+- `connector-platform.marketing`
+
+### Configuration
+
+```bash
+# Enable Kafka (default: false, uses mock publisher)
+export KAFKA_ENABLED=true
+export KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": { /* Raw API response */ },
+  "transformed_data": { /* Common format */ },
+  "connector_type": "cloud_storage",
+  "published_to_kafka": true
+}
+```
+
+For detailed documentation, see [TRANSFORMATION_AND_KAFKA.md](docs/TRANSFORMATION_AND_KAFKA.md)
 
 ## Configuration Schema
 

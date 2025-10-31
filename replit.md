@@ -16,8 +16,22 @@ The platform is fully implemented with:
 - RESTful API with FastAPI
 - PostgreSQL database for connections and tokens
 - Developer Dashboard UI (React + TypeScript + Vite)
+- Data transformation system with common data models
+- Kafka integration for event-driven architecture
 
 ## Recent Changes
+
+- 2025-10-31: Data Transformation and Kafka Integration
+  - Added connector type classification (cloud_storage, email, marketing)
+  - Created common data models for each connector type
+  - Implemented transformer classes to normalize API responses
+  - Built Kafka publisher with topic-per-type architecture
+  - Integrated transformers into API proxy for automatic transformation
+  - Added MockKafkaPublisher for development without Kafka cluster
+  - Created comprehensive documentation (TRANSFORMATION_AND_KAFKA.md)
+  - Added transformation examples and comparisons
+  - Updated connector configs with type field
+  - Installed kafka-python dependency
 
 - 2025-10-31: Developer Dashboard UI Implementation
   - Created React + TypeScript + Vite frontend application
