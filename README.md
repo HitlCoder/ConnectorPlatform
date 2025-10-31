@@ -65,9 +65,40 @@ A modular, configuration-driven platform for building and managing API connector
 
 ## Quick Start
 
+### Prerequisites
+
+**Option 1: Docker (Recommended for local development) 🐳**
+- Docker Desktop installed
+- No other dependencies needed!
+
+**Option 2: Manual Setup**
+- Python 3.11+
+- PostgreSQL database
+- Node.js 18+ (for dashboard)
+
 ### Installation
 
-#### Backend Setup
+#### Option 1: Docker Setup (Easiest)
+
+**One command to run everything:**
+
+```bash
+docker-compose up -d
+```
+
+This starts:
+- PostgreSQL database
+- Backend API (port 8000)
+- Frontend dashboard (port 5000)
+
+**Access the application:**
+- Dashboard: http://localhost:5000
+- API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+
+**For complete Docker documentation, see [docker-setup.md](docker-setup.md)**
+
+#### Option 2: Manual Backend Setup
 
 1. Install Python dependencies:
 ```bash

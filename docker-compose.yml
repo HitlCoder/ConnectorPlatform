@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: connector-platform-db
+    environment:
+      POSTGRES_USER: connector_user
+      POSTGRES_PASSWORD: connector_password
+      POSTGRES_DB: connector_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U connector_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: connector-platform-api
+    environment:
+      # Database configuration
+      DATABASE_URL: postgresql://connector_user:connector_password@postgres:5432/connector_platform
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: connector_user
+      PGPASSWORD: connector_password
+      PGDATABASE: connector_platform
+      
+      # Kafka configuration (disabled by default)
+      KAFKA_ENABLED: "false"
+      KAFKA_BOOTSTRAP_SERVERS: "localhost:9092"
+      
+      # Session secret
+      SESSION_SECRET: "change-this-secret-in-production"
+      
+      # Add your OAuth credentials here (optional)
+      # ONEDRIVE_CLIENT_ID: your_client_id
+      # ONEDRIVE_CLIENT_SECRET: your_client_secret
+      # DROPBOX_APP_KEY: your_app_key
+      # DROPBOX_APP_SECRET: your_app_secret
+      # GMAIL_CLIENT_ID: your_client_id
+      # GMAIL_CLIENT_SECRET: your_client_secret
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./connector_platform:/app/connector_platform
+      - ./main.py:/app/main.py
+    restart: unless-stopped
+
+  # Frontend Dashboard
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: connector-platform-frontend
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
