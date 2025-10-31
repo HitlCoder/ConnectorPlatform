@@ -1,13 +1,17 @@
 from typing import Dict, Optional, Any
 import requests
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class APIProxy:
-    def __init__(self, db_session, oauth_manager, connection_manager):
+    def __init__(self, db_session, oauth_manager, connection_manager, kafka_publisher=None):
         self.db = db_session
         self.oauth_manager = oauth_manager
         self.connection_manager = connection_manager
+        self.kafka_publisher = kafka_publisher
     
     def execute_request(
         self,
@@ -81,12 +85,22 @@ class APIProxy:
                 else:
                     data = response.text
             
-            return {
+            result = {
                 "success": response.status_code < 400,
                 "status_code": response.status_code,
                 "data": data,
                 "headers": dict(response.headers)
             }
+            
+            if result["success"] and data:
+                result = self._transform_and_publish(
+                    result,
+                    connector_config,
+                    endpoint_config,
+                    connection_id
+                )
+            
+            return result
         
         except requests.exceptions.RequestException as e:
             return {
@@ -123,3 +137,56 @@ class APIProxy:
         headers.update(custom_headers)
         
         return headers
+    
+    def _transform_and_publish(
+        self,
+        result: Dict[str, Any],
+        connector_config: Dict,
+        endpoint_config: Dict,
+        connection_id: str
+    ) -> Dict[str, Any]:
+        """Transform response data and publish to Kafka"""
+        from .transformers import TransformerFactory
+        
+        connector_type = connector_config.get('type')
+        connector_name = connector_config.get('name')
+        endpoint_name = endpoint_config.get('name')
+        
+        if not connector_type:
+            logger.debug(f"No connector type defined for {connector_name}")
+            return result
+        
+        transformer = TransformerFactory.get_transformer(connector_type)
+        
+        if transformer:
+            try:
+                transformed_data = transformer.transform(
+                    result['data'],
+                    endpoint_name,
+                    connector_name
+                )
+                
+                result['transformed_data'] = transformed_data
+                result['connector_type'] = connector_type
+                
+                if self.kafka_publisher and transformed_data.get('transformed', True):
+                    published = self.kafka_publisher.publish(
+                        connector_type=connector_type,
+                        data=transformed_data,
+                        connection_id=connection_id,
+                        connector_name=connector_name,
+                        endpoint_name=endpoint_name
+                    )
+                    result['published_to_kafka'] = published
+                    
+                    if published:
+                        logger.info(
+                            f"Published {connector_name}.{endpoint_name} to "
+                            f"Kafka topic: connector-platform.{connector_type}"
+                        )
+                
+            except Exception as e:
+                logger.error(f"Transformation error: {e}")
+                result['transformation_error'] = str(e)
+        
+        return result

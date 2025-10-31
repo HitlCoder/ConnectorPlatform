@@ -2,6 +2,7 @@ name: gmail
 display_name: Gmail
 description: Connect to Gmail to send, read, and manage emails
 version: 1.0.0
+type: email
 base_url: https://gmail.googleapis.com
 
 auth:

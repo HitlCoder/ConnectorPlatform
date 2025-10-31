@@ -2,6 +2,7 @@ name: onedrive
 display_name: OneDrive
 description: Connect to Microsoft OneDrive to manage files and folders
 version: 1.0.0
+type: cloud_storage
 base_url: https://graph.microsoft.com/v1.0
 
 auth:

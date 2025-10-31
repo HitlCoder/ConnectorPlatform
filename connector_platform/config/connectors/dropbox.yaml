@@ -2,6 +2,7 @@ name: dropbox
 display_name: Dropbox
 description: Connect to Dropbox to manage files and folders
 version: 1.0.0
+type: cloud_storage
 base_url: https://api.dropboxapi.com/2
 
 auth:

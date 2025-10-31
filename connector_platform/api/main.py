@@ -10,8 +10,17 @@ from connector_platform.core.oauth_manager import OAuthManager
 from connector_platform.core.connection_manager import ConnectionManager
 from connector_platform.core.api_proxy import APIProxy
 from connector_platform.core.connector_registry import ConnectorRegistry
+from connector_platform.core.kafka_publisher import KafkaPublisher, MockKafkaPublisher
 
 app = FastAPI(title="Connector Platform API", version="1.0.0")
+
+kafka_enabled = os.getenv("KAFKA_ENABLED", "false").lower() == "true"
+kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+
+if kafka_enabled:
+    kafka_publisher = KafkaPublisher(bootstrap_servers=kafka_servers, enabled=True)
+else:
+    kafka_publisher = MockKafkaPublisher()
 
 app.add_middleware(
     CORSMiddleware,
@@ -282,6 +291,8 @@ def proxy_execute(
     client_secret = os.getenv(auth_config.get("client_secret_env", ""))
     
     connector_config = {
+        "name": connector.get("name"),
+        "type": connector.get("type"),
         "client_id": client_id,
         "client_secret": client_secret,
         "token_url": auth_config.get("token_url"),
@@ -289,7 +300,7 @@ def proxy_execute(
     }
     
     oauth_manager = OAuthManager(db)
-    proxy = APIProxy(db, oauth_manager, manager)
+    proxy = APIProxy(db, oauth_manager, manager, kafka_publisher=kafka_publisher)
     
     result = proxy.execute_request(
         connection_id=request.connection_id,
