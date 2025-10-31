@@ -11,8 +11,8 @@ class BaseTransformer:
     """Base class for all transformers"""
     
     def transform(self, data: Dict[str, Any], endpoint_name: str, connector_name: str) -> Dict[str, Any]:
-        """Transform connector-specific data to common model"""
-        raise NotImplementedError("Subclasses must implement transform method")
+        """Transform connector-specific data to common model. Returns raw data for base transformer."""
+        return {'raw_data': data, 'transformed': False}
 
 
 class CloudStorageTransformer(BaseTransformer):
@@ -174,13 +174,16 @@ class EmailTransformer(BaseTransformer):
         """Transform Gmail message to common model"""
         headers = {h['name']: h['value'] for h in msg.get('payload', {}).get('headers', [])}
         
+        cc_value = headers.get('Cc')
+        cc_addresses = [cc_value] if cc_value else None
+        
         return EmailMessage(
             id=msg.get('id', ''),
             thread_id=msg.get('threadId'),
             subject=headers.get('Subject', ''),
             from_address=headers.get('From', ''),
             to_addresses=[headers.get('To', '')],
-            cc_addresses=[headers.get('Cc')] if headers.get('Cc') else None,
+            cc_addresses=cc_addresses,
             snippet=msg.get('snippet'),
             received_at=self._parse_gmail_date(headers.get('Date')),
             labels=msg.get('labelIds', []),
@@ -223,9 +226,9 @@ class TransformerFactory:
     }
     
     @classmethod
-    def get_transformer(cls, connector_type: str) -> Optional[BaseTransformer]:
-        """Get transformer for given connector type"""
-        return cls._transformers.get(connector_type)
+    def get_transformer(cls, connector_type: str) -> BaseTransformer:
+        """Get transformer for given connector type, returns BaseTransformer for unknown types"""
+        return cls._transformers.get(connector_type, BaseTransformer())
     
     @classmethod
     def register_transformer(cls, connector_type: str, transformer: BaseTransformer):
