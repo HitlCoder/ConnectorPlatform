@@ -11,6 +11,7 @@ A modular, configuration-driven platform for building and managing API connector
 - **API Proxy Layer**: Transparent request/response handling with authentication
 - **Multi-Language SDKs**: Python and Go SDKs for building custom connectors
 - **RESTful API**: Complete REST API for all platform operations
+- **Developer Dashboard**: Modern web UI for managing connectors, connections, and testing APIs
 - **Pre-built Connectors**: Gmail, OneDrive, and Dropbox connectors included
 
 ## Project Structure
@@ -36,6 +37,14 @@ A modular, configuration-driven platform for building and managing API connector
 │   │   ├── onedrive_connector.py
 │   │   └── dropbox_connector.py
 │   └── database.py        # Database models
+├── frontend/              # Developer Dashboard UI
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── api/           # API client
+│   │   ├── App.tsx        # Main application
+│   │   └── main.tsx       # Entry point
+│   ├── vite.config.ts     # Vite configuration
+│   └── package.json       # Frontend dependencies
 ├── sdk/
 │   ├── python/            # Python SDK
 │   │   ├── base_connector.py
@@ -46,6 +55,8 @@ A modular, configuration-driven platform for building and managing API connector
 │       └── client/
 │           └── client.go
 ├── docs/                  # Documentation
+│   ├── DASHBOARD_GUIDE.md # Dashboard user guide
+│   └── ...
 ├── main.py               # Application entry point
 └── generate_connectors.py # Code generation script
 ```
@@ -54,7 +65,9 @@ A modular, configuration-driven platform for building and managing API connector
 
 ### Installation
 
-1. Install dependencies:
+#### Backend Setup
+
+1. Install Python dependencies:
 ```bash
 pip install -r requirements.txt
 ```
@@ -70,12 +83,53 @@ export DROPBOX_CLIENT_ID="your-dropbox-client-id"
 export DROPBOX_CLIENT_SECRET="your-dropbox-client-secret"
 ```
 
-3. Start the platform:
+3. Start the backend API:
 ```bash
 python main.py
 ```
 
-The API will be available at `http://localhost:5000`
+The API will be available at `http://localhost:8000`
+
+#### Frontend Dashboard Setup
+
+1. Install Node.js dependencies:
+```bash
+cd frontend
+npm install
+```
+
+2. Start the development server:
+```bash
+npm run dev
+```
+
+The dashboard will be available at `http://localhost:5000`
+
+#### Production Build
+
+For production deployment:
+
+```bash
+# Build frontend
+cd frontend
+npm run build
+
+# The built files will be in frontend/dist/
+# Serve them using your preferred static file server
+```
+
+### Using the Developer Dashboard
+
+The platform includes a comprehensive web-based dashboard for managing connectors and connections:
+
+1. **Browse Connectors** - View all available integrations (Gmail, OneDrive, Dropbox)
+2. **Manage Connections** - Create, authorize, and manage connector instances
+3. **Test APIs** - Interactive endpoint testing with parameter input and formatted responses
+4. **OAuth Flow** - Automated OAuth authorization with secure token management
+
+**Access the dashboard at:** `http://localhost:5000`
+
+See the complete [Dashboard Guide](docs/DASHBOARD_GUIDE.md) for detailed usage instructions.
 
 ### Creating a New Connector
 
@@ -203,7 +257,7 @@ result = client.execute_connector_action(
 from sdk.python import ConnectorPlatformClient, BaseConnector
 
 # Platform client
-client = ConnectorPlatformClient("http://localhost:5000")
+client = ConnectorPlatformClient("http://localhost:8000")
 
 # List connectors
 connectors = client.list_connectors()
@@ -216,7 +270,7 @@ from platform.connectors.gmail_connector import GmailConnector
 
 gmail = GmailConnector(
     connection_id="conn-123",
-    config={"platform_url": "http://localhost:5000"}
+    config={"platform_url": "http://localhost:8000"}
 )
 
 messages = gmail.list_messages(maxResults=10)
@@ -231,7 +285,7 @@ import (
 )
 
 // Create client
-c := client.NewClient("http://localhost:5000")
+c := client.NewClient("http://localhost:8000")
 
 // List connectors
 connectors, _ := c.ListConnectors()
@@ -242,6 +296,38 @@ conn, _ := c.CreateConnection("gmail", "My Gmail", "user123", nil)
 // Use connector
 // Custom implementation based on generated code
 ```
+
+## Developer Dashboard
+
+The platform includes a modern web-based dashboard built with React, TypeScript, and Vite.
+
+### Dashboard Features
+
+- **Connectors View**: Browse all available connectors with details
+- **Connections Management**: Create, view, and delete connections
+- **OAuth Integration**: Seamless OAuth 2.0 authorization flow
+- **API Tester**: Interactive endpoint testing with parameter inputs and JSON response viewing
+- **Responsive Design**: Clean, professional UI that works on all devices
+
+### Dashboard Technology Stack
+
+- React 19 + TypeScript
+- Vite 7 (build tool)
+- React Router DOM 7 (routing)
+- Axios (HTTP client)
+- Custom CSS styling
+
+### Running the Dashboard
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Dashboard available at: `http://localhost:5000`
+
+For complete dashboard documentation, see [DASHBOARD_GUIDE.md](docs/DASHBOARD_GUIDE.md)
 
 ## Configuration Schema
 
