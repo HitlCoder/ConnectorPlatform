@@ -7,6 +7,14 @@ const apiClient = axios.create({
   },
 });
 
+export interface ConnectorSummary {
+  name: string;
+  display_name: string;
+  description: string;
+  auth_type: string;
+  version: string;
+}
+
 export interface Connector {
   name: string;
   display_name: string;
@@ -50,7 +58,7 @@ export interface OAuthInitResponse {
 }
 
 export const connectorsApi = {
-  async listConnectors(): Promise<Connector[]> {
+  async listConnectors(): Promise<ConnectorSummary[]> {
     const response = await apiClient.get('/connectors');
     return response.data;
   },

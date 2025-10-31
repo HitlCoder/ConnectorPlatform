@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Dashboard from './components/Dashboard';
-import Connectors from './components/Connectors';
-import Connections from './components/Connections';
-import OAuthCallback from './components/OAuthCallback';
-import ApiTester from './components/ApiTester';
+import Dashboard from './components/Dashboard.tsx';
+import Connectors from './components/Connectors.tsx';
+import Connections from './components/Connections.tsx';
+import OAuthCallback from './components/OAuthCallback.tsx';
+import ApiTester from './components/ApiTester.tsx';
 import './App.css';
 
 function App() {

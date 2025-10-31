@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { connectionsApi, connectorsApi, proxyApi, Connection, Connector } from '../api/client';
+import { connectionsApi, connectorsApi, proxyApi, type Connection, type Connector } from '../api/client';
 
 const USER_ID = 'demo-user';
 

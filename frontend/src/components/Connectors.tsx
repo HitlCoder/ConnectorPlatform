@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { connectorsApi, Connector } from '../api/client';
+import { connectorsApi, type ConnectorSummary, type Connector } from '../api/client';
 
 export default function Connectors() {
-  const [connectors, setConnectors] = useState<Connector[]>([]);
+  const [connectors, setConnectors] = useState<ConnectorSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null);
@@ -68,7 +68,7 @@ export default function Connectors() {
                 <h4>{connector.display_name}</h4>
                 <p>{connector.description}</p>
                 <div style={{ marginTop: '1rem' }}>
-                  <span className="badge badge-info">{connector.auth.type}</span>
+                  <span className="badge badge-info">{connector.auth_type}</span>
                   <span className="badge badge-info" style={{ marginLeft: '0.5rem' }}>
                     v{connector.version}
                   </span>

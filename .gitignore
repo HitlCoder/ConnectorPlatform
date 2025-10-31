@@ -37,3 +37,8 @@ node_modules/
 .vscode/
 *.swp
 *.swo
+
+# Frontend build artifacts
+frontend/dist/
+frontend/node_modules/
+frontend/.vite/

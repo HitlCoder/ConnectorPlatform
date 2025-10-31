@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { connectionsApi, connectorsApi, oauthApi, Connection, Connector } from '../api/client';
+import { connectionsApi, connectorsApi, oauthApi, type Connection, type ConnectorSummary } from '../api/client';
 
 const USER_ID = 'demo-user';
 
 export default function Connections() {
   const [connections, setConnections] = useState<Connection[]>([]);
-  const [connectors, setConnectors] = useState<Connector[]>([]);
+  const [connectors, setConnectors] = useState<ConnectorSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
